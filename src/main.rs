@@ -17,7 +17,6 @@ extern crate libc;
 #[cfg(target_os = "macos")]
 extern crate libproc;
 #[cfg(unix)]
-extern crate nix;
 extern crate proc_maps;
 #[macro_use]
 extern crate log;
@@ -166,19 +165,19 @@ fn do_main() -> Result<(), Error> {
 
                     #[cfg(unix)]
                     {
-                        let uid_str = std::env::var("SUDO_UID");
-                        if nix::unistd::Uid::effective().is_root() && !no_drop_root && uid_str.is_ok() {
-                            let uid: u32 = uid_str.unwrap().parse::<u32>().context(
-                                "Failed to parse UID",
-                            )?;
-                            eprintln!(
-                                "Dropping permissions: running Ruby command as user {}",
-                                std::env::var("SUDO_USER")?
-                            );
-                            Command::new(prog).uid(uid).args(args).spawn()?.id() as Pid
-                        } else {
+                        // let uid_str = std::env::var("SUDO_UID");
+                        // if nix::unistd::Uid::effective().is_root() && !no_drop_root && uid_str.is_ok() {
+                        //     let uid: u32 = uid_str.unwrap().parse::<u32>().context(
+                        //         "Failed to parse UID",
+                        //     )?;
+                        //     eprintln!(
+                        //         "Dropping permissions: running Ruby command as user {}",
+                        //         std::env::var("SUDO_USER")?
+                        //     );
+                        //     Command::new(prog).uid(uid).args(args).spawn()?.id() as Pid
+                        // } else {
                             Command::new(prog).args(args).spawn()?.id() as Pid
-                        }
+                        // }
                     }
                     #[cfg(windows)]
                     { Command::new(prog).args(args).spawn()?.id() as Pid }
@@ -205,16 +204,17 @@ fn do_main() -> Result<(), Error> {
 
 #[cfg(target_os="macos")]
 fn check_root_user() -> bool {
-    let euid = nix::unistd::Uid::effective();
-    if euid.is_root() {
-        return true;
-    } else {
-        eprintln!("rbspy only works as root on Mac. Try rerunning with `sudo --preserve-env !!`.");
-        eprintln!(
-            "If you run `sudo rbspy record ruby your-program.rb`, rbspy will drop privileges when running `ruby your-program.rb`. If you want the Ruby program to run as root, use `rbspy --no-drop-root`."
-        );
-        return false;
-    }
+    // let euid = nix::unistd::Uid::effective();
+    // if euid.is_root() {
+    //     return true;
+    // } else {
+    //     eprintln!("rbspy only works as root on Mac. Try rerunning with `sudo --preserve-env !!`.");
+    //     eprintln!(
+    //         "If you run `sudo rbspy record ruby your-program.rb`, rbspy will drop privileges when running `ruby your-program.rb`. If you want the Ruby program to run as root, use `rbspy --no-drop-root`."
+    //     );
+    //     return false;
+    // }
+    true
 }
 
 #[cfg(all(windows, target_arch = "x86_64"))]
